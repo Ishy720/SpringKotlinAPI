@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service
 import com.example.api.restapi.exceptions.*
 import com.example.api.restapi.models.Person
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 
 @Service
@@ -21,7 +19,7 @@ class PersonService(private val personRepository: PersonRepository) {
         try {
             return personRepository.save(person)
         }
-        //Handle exceptions if unsuccessful
+        //Handle exception if unsuccessful
         catch (e : Exception) {
             throw PersonNotCreatedException("ERROR: Could not save person!")
         }
@@ -69,22 +67,23 @@ class PersonService(private val personRepository: PersonRepository) {
         }
     }
 
-
+    //Get a filtered result of Persons based on partial name match or exact age match
     fun getFilteredPersons(partialName: String?, age: Int?): List<Person> {
         var filteredPersons = personRepository.findAll()
 
-        //filter by partial name
+        //Filter by partial name if provided
         if (partialName != null) {
             filteredPersons = filteredPersons.filter {
-                it.name.contains(partialName, ignoreCase = true) || it.surname.contains(partialName, ignoreCase = true)
+                it.name.contains(partialName, ignoreCase = true) || it.surname.contains(partialName, ignoreCase = true) //Check both names using contains method
             }
         }
 
-        //filter by age
+        //Filter by age if provided
         if (age != null) {
-            filteredPersons = filteredPersons.filter { it.age == age }
+            filteredPersons = filteredPersons.filter { it.age == age } //Get only the Persons that match the age
         }
 
+        //Return the collective results
         return filteredPersons
     }
 

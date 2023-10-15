@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity
 @RestController
 class PersonController(
 
+    //Plug in PersonService
     private val personService: PersonService
 
 ) {
@@ -22,10 +23,10 @@ class PersonController(
     @PostMapping("/person")
     fun createPerson(@RequestBody payload: Person): ResponseEntity<Any> {
         try {
-            val createdPerson = personService.createPerson(payload)
-            return ResponseEntity.ok(createdPerson)
+            val createdPerson = personService.createPerson(payload) //Make new person
+            return ResponseEntity.ok(createdPerson) //Successful creation
         } catch (e: Exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to create the new Person!")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to create the new Person!") //Failed to create
         }
     }
 
@@ -38,15 +39,15 @@ class PersonController(
         val pageable: Pageable = PageRequest.of(page, size)
 
         try {
-            val page = personService.getAllPersons(pageable)
+            val page = personService.getAllPersons(pageable) //Get all Persons
 
             if (!page.isEmpty) {
-                return ResponseEntity.ok(page)
+                return ResponseEntity.ok(page) //Successfully retrieved Persons
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SERVER MESSAGE: No Persons found!")
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SERVER MESSAGE: No Persons found!") //Nobody in the database
             }
         } catch (e: Exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to retrieve persons!")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to retrieve persons!") //Failed to get Persons
         }
     }
 
@@ -58,15 +59,15 @@ class PersonController(
     ): ResponseEntity<Any> {
         val pageable: Pageable = PageRequest.of(page, size)
         try {
-            val page = personService.getPersonById(id, pageable)
+            val page = personService.getPersonById(id, pageable) //Try get Person by their ID
 
             if (!page.isEmpty) {
-                return ResponseEntity.ok(page)
+                return ResponseEntity.ok(page) //Successfully found the Person and return them
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SERVER MESSAGE: Person with ID $id not found!")
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SERVER MESSAGE: Person with ID $id not found!") //Person doesn't exist with that ID
             }
         } catch (e: Exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to retrieve person with ID $id!")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to retrieve person with ID $id!") //Failed to get Person
         }
     }
 
@@ -75,15 +76,15 @@ class PersonController(
     @PutMapping("/person/{id}")
     fun updatePerson(@PathVariable id: Long, @RequestBody updatedPerson: Person): ResponseEntity<String> {
         try {
-            val updated = personService.updatePerson(id, updatedPerson)
+            val updated = personService.updatePerson(id, updatedPerson) //Update the Person using their ID to find them
             if (updated != null) {
-                return ResponseEntity.ok("SERVER MESSAGE: Person with id $id updated successfully!")
+                return ResponseEntity.ok("SERVER MESSAGE: Person with id $id updated successfully!") //Successfully updated the Person
             }
             else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SERVER ERROR: Person with id $id not found!")
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SERVER ERROR: Person with id $id not found!") //Person doesn't exist with that ID
             }
         } catch (e : Exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to update person with ID $id!")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to update person with ID $id!") //Failed to update Person
         }
 
     }
@@ -92,11 +93,11 @@ class PersonController(
     @DeleteMapping("/person/{id}")
     fun deletePerson(@PathVariable id: Long): ResponseEntity<Any> {
         try {
-            personService.deletePerson(id)
-            return ResponseEntity.ok("SERVER MESSAGE: Person with ID $id deleted successfully")
+            personService.deletePerson(id) //Try delete the Person by locating them with their ID
+            return ResponseEntity.ok("SERVER MESSAGE: Person with ID $id deleted successfully") //Successful deletion
         }
         catch (e: Exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to delete person with ID $id!")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to delete person with ID $id!") //Couldn't delete the Person
         }
     }
 
@@ -107,13 +108,14 @@ class PersonController(
         @RequestParam(required = false) partialName: String?,
         @RequestParam(required = false) age: Int?
     ): ResponseEntity<Any> {
-        //return personService.getFilteredPersons(partialName, age)
-        val filteredPersons: List<Person> = personService.getFilteredPersons(partialName, age)
+
+        val filteredPersons: List<Person> = personService.getFilteredPersons(partialName, age) //Get a List of type Person that match the partial name or exact age
 
         if (filteredPersons.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to find any matches!")
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("SERVER ERROR: Failed to find any matches!") //Couldn't find anyone that matched the terms
         }
 
+        //Remove the username and password by mapping the list of Persons to a new one
         val filteredPeople = filteredPersons.map { person ->
             FilteredPerson(
                 id = person.id!!,
@@ -126,6 +128,7 @@ class PersonController(
             )
         }
 
+        //Return the new list that doesn't contain username and password information
         return ResponseEntity.ok(filteredPeople)
 
     }

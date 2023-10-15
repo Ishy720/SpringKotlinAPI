@@ -1,5 +1,7 @@
+//Packages
 package com.example.api.restapi.config;
 
+//Imports
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.User;
@@ -13,17 +15,16 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 class SecurityConfiguration {
 
+    //Create in-memory users "guest" and "admin"
     @Bean
     fun users(): UserDetailsService {
         val guest = User.builder()
             .username("guest")
-            //.password("guestPass")
             .password(passwordEncoder().encode("guestPass"))
             .roles("guest")
             .build()
         val admin = User.builder()
             .username("admin")
-            //.password("adminPass")
             .password(passwordEncoder().encode("adminPass"))
             .roles("admin")
             .build()
@@ -35,6 +36,7 @@ class SecurityConfiguration {
         return BCryptPasswordEncoder()
     }
 
+    //Auth controller for API endpoints
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.csrf { it.disable() }.
