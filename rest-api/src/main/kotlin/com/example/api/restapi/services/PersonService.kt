@@ -6,6 +6,10 @@ import com.example.api.restapi.repositories.PersonRepository
 import org.springframework.stereotype.Service
 import com.example.api.restapi.exceptions.*
 import com.example.api.restapi.models.Person
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 
 @Service
 class PersonService(private val personRepository: PersonRepository) {
@@ -25,12 +29,15 @@ class PersonService(private val personRepository: PersonRepository) {
     }
 
     //Return all Persons
-    fun getAllPersons(): List<Person> = personRepository.findAll()
+    fun getAllPersons(pageable: Pageable): Page<Person> {
+        return personRepository.findAll(pageable)
+    }
 
     //Return Person by id
-    fun getPersonById(id: Long): Person? {
-        return personRepository.findById(id).orElse(null)
+    fun getPersonById(id: Long, pageable: Pageable): Page<Person> {
+        return personRepository.findById(id, pageable)
     }
+
 
     //Update Person by id
     fun updatePerson(id: Long, updatedPerson: Person): Person? {
@@ -62,8 +69,9 @@ class PersonService(private val personRepository: PersonRepository) {
         }
     }
 
+
     fun getFilteredPersons(partialName: String?, age: Int?): List<Person> {
-        var filteredPersons = getAllPersons()
+        var filteredPersons = personRepository.findAll()
 
         //filter by partial name
         if (partialName != null) {
@@ -79,6 +87,7 @@ class PersonService(private val personRepository: PersonRepository) {
 
         return filteredPersons
     }
+
 
 
 }

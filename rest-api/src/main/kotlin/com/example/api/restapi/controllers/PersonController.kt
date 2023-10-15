@@ -4,6 +4,8 @@ package com.example.api.restapi.controllers
 //Imports
 import com.example.api.restapi.services.PersonService
 import com.example.api.restapi.models.*
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -28,12 +30,18 @@ class PersonController(
     }
 
     //RETRIEVE ENDPOINTS (GET ALL, GET ONE USER) (admin)
-    @GetMapping("/person")
-    fun getAllPersons(): ResponseEntity<Any> {
-         try {
-            val persons = personService.getAllPersons()
-            if (persons.isNotEmpty()) {
-                return ResponseEntity.ok(persons)
+    @GetMapping("/persons")
+    fun getAllPersons(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int
+    ): ResponseEntity<Any> {
+        val pageable: Pageable = PageRequest.of(page, size)
+
+        try {
+            val page = personService.getAllPersons(pageable)
+
+            if (!page.isEmpty) {
+                return ResponseEntity.ok(page)
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SERVER MESSAGE: No Persons found!")
             }
@@ -43,11 +51,17 @@ class PersonController(
     }
 
     @GetMapping("/person/{id}")
-    fun getPersonById(@PathVariable id: Long): ResponseEntity<Any> {
-         try {
-            val person = personService.getPersonById(id)
-            if (person != null) {
-                return ResponseEntity.ok(person)
+    fun getPersonById(
+        @PathVariable id: Long,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "1") size: Int
+    ): ResponseEntity<Any> {
+        val pageable: Pageable = PageRequest.of(page, size)
+        try {
+            val page = personService.getPersonById(id, pageable)
+
+            if (!page.isEmpty) {
+                return ResponseEntity.ok(page)
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SERVER MESSAGE: Person with ID $id not found!")
             }
